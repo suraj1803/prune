@@ -81,11 +81,9 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
                 next_task_idx++;
                 continue;
             } else if (pid == 0) {
-                // Child: replace process image
                 execvp(t->argv[0], t->argv);
-                _exit(127); // If execvp fails (e.g. command not found)
+                _exit(127); 
             } else {
-                // Parent: record child PID and occupied slot
                 t->pid = pid;
                 active_workers++;
                 if (verbose) {
@@ -111,7 +109,6 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
                         tasks[i].finished = true;
                         tasks[i].elapsed_ms = timespec_diff_ms(tasks[i].start, end_time);
 
-                        // Extract exit code or termination signal
                         if (WIFEXITED(status)) {
                             tasks[i].exit_status = WEXITSTATUS(status);
                         } else if (WIFSIGNALED(status)) {
@@ -122,7 +119,6 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
 
                         tasks[i].failed = (tasks[i].exit_status != 0);
 
-                        // Free the worker slot!
                         active_workers--;
                         completed_count++;
 
@@ -133,14 +129,13 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
                             fflush(stdout);
                         }
 
-                        break; // Found the task, stop searching
+                        break; 
                     }
                 }
             }
         }
     }
 
-    // 3. Record final wall-clock duration and summary
     clock_gettime(CLOCK_MONOTONIC, &wall_end);
 
     if (summary) {
