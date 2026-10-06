@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #define _GNU_SOURCE
 #include "prun.h"
 #include <stdio.h>
@@ -52,6 +53,15 @@ void free_argv(char **argv) {
     free(argv);
 }
 
+// this for better code reading
+int has_workers(int active, int max) {
+    return active < max;
+}
+
+int tasks_left(int id, int total) {
+    return id < total;
+}
+
 /**
  * run_parallel:
  * The core process dispatcher engine.
@@ -69,7 +79,7 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
 
     while (completed_count < num_tasks) {
         // 1. Dispatch tasks while slots are available
-        while (active_workers < max_workers && next_task_idx < num_tasks) {
+        while (has_workers(active_workers, max_workers) && tasks_left(next_task_idx, num_tasks)) {
             task_t *t = &tasks[next_task_idx];
             clock_gettime(CLOCK_MONOTONIC, &t->start);
 
@@ -94,7 +104,7 @@ int run_parallel(task_t *tasks, int num_tasks, int max_workers, run_summary_t *s
             }
         }
 
-        // 2. Wait for ANY child process to finish
+        // 2. When there is any active workers then Wait for ANY child process to finish
         if (active_workers > 0) {
             int status;
             pid_t completed_pid = waitpid(-1, &status, 0);
