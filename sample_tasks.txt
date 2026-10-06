@@ -1,0 +1,27 @@
+# ============================================================
+# Time-Consuming Benchmark Tasks for prun
+# ============================================================
+
+# 1. CPU-Bound: Big integer summation (calculates sum of 20 million squares)
+python3 -c "sum(i*i for i in range(20000000))"
+
+# 2. I/O & Compression: Gzip compressing 50MB of stream data
+sh -c "head -c 50M /dev/zero | gzip -9 > /dev/null"
+
+# 3. CPU-Bound: Cryptographic SHA-256 hashing (hashes 800,000 blocks)
+python3 -c "import hashlib; [hashlib.sha256(b'stanford-cs111').hexdigest() for _ in range(800000)]"
+
+# 4. Memory & Sorting: Generates and sorts 3 million integers in memory
+sh -c "seq 1 3000000 | sort -n > /dev/null"
+
+# 5. Latency / I/O simulation: 1.5-second task
+sleep 1.5
+
+# 6. CPU-Bound: Heavy arbitrary-precision factorial math
+python3 -c "import math; [math.factorial(1200) for _ in range(20000)]"
+
+# 7. I/O & Compression: Second compression workload (40MB stream)
+sh -c "head -c 40M /dev/zero | gzip -9 > /dev/null"
+
+# 8. Latency / I/O simulation: 1.0-second task
+sleep 1.0
